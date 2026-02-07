@@ -1,0 +1,339 @@
+/* ===== 1. GLOBAL VARIABLES & RESET ===== */
+:root {
+  --header-height: 150px; /* Adjust this one number to change header size */
+  --brand-red: #f23122;
+  --transition: all 0.3s ease;
+}
+
+.hero-left,
+.hero-right {
+  border: none !important;
+  outline: none !important;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  font-family: "Poppins", sans-serif;
+  color: #000;
+  background: #fff;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* Ensure content starts below the fixed header */
+body {
+  padding-top: var(--header-height) !important;
+}
+
+/* ===== 2. HEADINGS & TEXT ===== */
+h1,
+h2,
+h3 {
+  font-family: "Poppins", sans-serif;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-weight: 600;
+  font-size: 32px;
+}
+h2 {
+  font-weight: 600;
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+h3 {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+p,
+input,
+select,
+button {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+/* ===== 3. SITE HEADER (THE FIX) ===== */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-height);
+  min-height: var(--header-height);
+  padding: 0 10%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 10000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* hard reset */
+  border: none !important;
+  outline: none !important;
+}
+
+.site-logo {
+  height: 80% !important; /* Scaled to the header height */
+  width: auto;
+  display: block;
+}
+
+/* ===== 4. HERO SECTION ===== */
+.hero {
+  display: flex;
+  width: 100%;
+  min-height: calc(100vh - var(--header-height));
+  padding: 0;
+
+  /*max-width: 900px;*/
+  margin: 0 auto;
+  text-align: left;
+}
+.hero p {
+  margin-bottom: 16px;
+  /* line-height: 1.7;*/
+  font-size: 15px;
+  color: #333;
+  text-align: justify;
+}
+
+.hero-left {
+  position: relative !important;
+  min-height: 480px !important;
+  background-image: url("https://i.ibb.co/gb0Ygp3R/Technican-img1.jpg") !important;
+  background-size: cover !important;
+  background-position: center right !important;
+  background-repeat: no-repeat !important;
+  /*border-radius: 6px !important;*/
+}
+
+.hero-left::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(
+    255,
+    255,
+    255,
+    0.64
+  ); /* lighter overlay so the image is visible */
+  /* border-radius: 6px;*/
+  z-index: 0;
+}
+
+.hero-left > * {
+  position: relative;
+  z-index: 1;
+}
+/*.hero-right {
+  flex: 3;
+  padding: 40px 30px;
+ background: linear-gradient(180deg, rgba(226, 229, 230, 0.5) 0%, #ffffff 65%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: none;
+   border-radius: 0 !important;
+  outline: none;
+}*/
+
+.hero-right {
+  flex: 3;
+  padding: 40px 30px;
+  /* Use a slightly deeper version of your gray for the gradient start */
+  background: linear-gradient(180deg, #dce1e2 0%, #ffffff 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: none;
+  border-radius: 0 !important;
+  outline: none;
+}
+
+/* HERO FORM */
+.hero-form {
+  width: 100%;
+  max-width: 320px;
+  background: none;
+  outline: none;
+  border: none;
+  /*border-radius: 18px;*/
+  padding: 28px 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+  /* box-shadow: 0 20px 40px rgba(0,0,0,0.1);*/
+  /* border: 1px solid rgba(242,49,34,0.25);*/
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hero-form h3 {
+  color: var(--brand-red);
+  text-align: center;
+}
+
+.hero-form input,
+.hero-form select,
+.hero-form button {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.hero-form button {
+  background: var(--brand-red);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.hero-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(242, 49, 34, 0.35);
+}
+
+/* ===== 5. CONTENT SECTIONS & GRIDS ===== */
+section {
+  padding: 60px 10%;
+}
+
+.test-grid,
+.assurance-grid,
+.why-grid,
+.process-steps,
+.testimonial-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.test-item,
+.step,
+.card {
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  padding: 20px;
+  flex: 1 1 calc(25% - 20px);
+}
+
+/* STATS */
+.stats {
+  display: flex;
+  justify-content: space-around;
+  background: #f4f4f4;
+  padding: 40px 10%;
+  border-radius: 16px;
+  margin-bottom: 60px;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 30px;
+  background: #0b6;
+  color: #fff;
+  border-radius: 16px 16px 0 0;
+}
+
+/* ===== 6. RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 120px;
+  } /* Smaller header on mobile */
+
+  .hero {
+    flex-direction: column;
+  }
+
+  .hero-left,
+  .hero-right {
+    width: 100%;
+    padding: 40px 20px;
+    border-left: none;
+  }
+
+  .test-item,
+  .step,
+  .card {
+    flex: 1 1 100%;
+  }
+
+  .stats {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+/* Ensure predictable sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Full-width responsive section */
+.Infra {
+  width: 100%;
+  max-width: 100vw; /* prevents overflow */
+  background-color: #eef7f6; /* light teal tint */
+  border-left: 6px solid #3aa6a1;
+  padding: clamp(16px, 4vw, 32px); /* responsive padding */
+  margin: 0; /* edge-to-edge */
+  border-radius: 0; /* cleaner full-width look */
+  overflow-wrap: break-word; /* prevents text overflow */
+}
+
+/* Paragraph text */
+.Infra p {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #2f3e3e;
+  text-align: justify;
+}
+
+/* Heading */
+.Infra h3 {
+  margin: 16px 0 10px 0;
+  font-size: 18px;
+  color: #2b7c78;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* List styling */
+.Infra ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.Infra ul li {
+  margin-bottom: 8px;
+  font-size: 15px;
+  color: #3a4f4f;
+  line-height: 1.5;
+}
+
+.Infra h4 {
+  margin: 12px 0 8px;
+  font-size: 16px;
+  color: #2f8f8b;
+  font-weight: 600;
+}
