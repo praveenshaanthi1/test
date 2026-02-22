@@ -8,7 +8,7 @@
 
   <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
+   <link rel="stylesheet" href="styles.css">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -47,7 +47,7 @@
 
     .site-logo {
       height: 50px;
-      width: auto;
+      width: 50%;
     }
 
     body {
@@ -59,7 +59,7 @@
     .hero {
       display: flex;
       width: 100%;
-      min-height: calc(100vh - 80px);
+      /* min-height: calc(100vh - 80px); */
       padding: 0;
     }
 
@@ -70,6 +70,12 @@
       background: #ffffff;
       border-top-left-radius: 24px;
       border-bottom-left-radius: 24px;
+      position: relative !important;
+  min-height: 480px !important;
+  background-image: url("https://i.ibb.co/gb0Ygp3R/Technican-img1.jpg") !important;
+  background-size: cover !important;
+  background-position: center right !important;
+  background-repeat: no-repeat !important;
     }
 
     .hero-left h1 {
@@ -300,26 +306,19 @@
       <p>
         With a strong focus on safety, hygiene, and quality control, we support efficient sample processing, offer convenient home collection for patients, and ensure timely report delivery. Backed by trained professionals and modern laboratory infrastructure, myto labs makes diagnostic testing dependable, efficient, and accessible—for labs and patients alike.</p>
     </div>
+      <div class="hero-right">
+    <h2>Visit Our Center Today</h2>
+    <p>We are just a call away!</p>
 
-    <!-- HERO RIGHT -->
-    <div class="hero-right">
-      <h2>Schedule Your Test Today</h2>
-      <p>We are just a call away!</p>
-
-      <div class="hero-form">
-        <h3>BOOK YOUR TEST</h3>
-        <input type="text" placeholder="Name">
-        <input type="text" placeholder="Mobile No">
-        <select name="location" aria-label="Select location">
-          <option value="">Select Location</option>
-          <option value="hosur">Hosur</option>
-          <option value="bangalore">Bangalore</option>
-          <option value="krishnagiri">Krishnagiri</option>
-        </select>
-        <button>Request a Call Back</button>
-      </div>
+    <div class="hero-form">
+     <address>
+    Your Company Name<br>
+    123 Example Street<br>
+    City, State, Zip Code<br>
+    <a href="tel:+1-555-555-5555">+1 (555) 555-5555</a>
+</address>
     </div>
-
+  </div>
   </section>
 
   <!-- ===== INTRO ===== -->
@@ -424,7 +423,6 @@
         <p>Reports delivered</p>
       </div>
     </div>
-    <button class="cta">Request a Call Back</button>
   </section>
 
   <!-- ===== ASSURANCE ===== -->
@@ -470,16 +468,6 @@
     <div>2000+ Collection Centres</div>
     <div>40 Years of Legacy</div>
     <div>NABL Accredited</div>
-  </section>
-
-  <!-- ===== TESTIMONIALS ===== -->
-  <section class="testimonials">
-    <h2>Customer Testimonials</h2>
-    <div class="testimonial-grid">
-      <div class="card">Customer review text</div>
-      <div class="card">Customer review text</div>
-      <div class="card">Customer review text</div>
-    </div>
   </section>
 
   <!-- ===== FOOTER ===== -->
