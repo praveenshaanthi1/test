@@ -772,7 +772,7 @@ const memories = [
     doodle: "iloveyou"
   },
   {
-    date: "10 Oct 2021 · 10:50 PM",
+    date: "10 Nov 2021 · 10:50 PM",
     title: "She Said It First",
     desc: "Keerthana texted 'love you' — her heart speaking before her mind could second-guess it.",
     doodle: "iloveyou2"
@@ -1360,6 +1360,52 @@ function sortMemories() {
   });
 }
 
+/* ── LOCAL STORAGE ── */
+var STORAGE_KEY = 'familyStory_memories';
+var FRAME_KEY   = 'familyStory_framePhoto';
+
+function saveMemories() {
+  try {
+    // Only save user-added/edited memories (non-auto, or auto ones that were edited)
+    // We save ALL memories so edits to built-in ones persist too
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(memories));
+  } catch(e) {
+    console.warn('Storage save failed (may be full):', e);
+  }
+}
+
+function loadMemories() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return; // first visit — use hardcoded defaults
+    var saved = JSON.parse(raw);
+    if (!Array.isArray(saved) || saved.length === 0) return;
+    // Replace the memories array contents with saved data
+    memories.length = 0;
+    saved.forEach(function(m) { memories.push(m); });
+  } catch(e) {
+    console.warn('Storage load failed:', e);
+  }
+}
+
+function saveFramePhoto(src) {
+  try {
+    if (src) localStorage.setItem(FRAME_KEY, src);
+    else localStorage.removeItem(FRAME_KEY);
+  } catch(e) {
+    console.warn('Frame photo save failed (image may be too large):', e);
+  }
+}
+
+function loadFramePhoto() {
+  try {
+    return localStorage.getItem(FRAME_KEY) || null;
+  } catch(e) { return null; }
+}
+
+// Load persisted memories on startup (overrides defaults if user has saved data)
+loadMemories();
+
 /* ── BUILD TIMELINE ── */
 const tl = document.getElementById('timeline');
 
@@ -1599,6 +1645,7 @@ document.getElementById('modalSave').addEventListener('click', function() {
     memories.push({ date: date, title: title, desc: desc, doodle: 'photo', photo: pendingPhoto || null, sortKey: rawDate });
   }
   sortMemories();
+  saveMemories();
   buildTimeline();
   // Scroll to the newly added/edited memory after modal closes
   var newIdx = editIndex !== null ? editIndex : memories.findIndex(function(m) { return m.sortKey === rawDate && m.title === title; });
@@ -1614,6 +1661,7 @@ document.getElementById('modalSave').addEventListener('click', function() {
 document.getElementById('confirmDelete').addEventListener('click', function() {
   if (deleteIndex !== null) {
     memories.splice(deleteIndex, 1);
+    saveMemories();
     buildTimeline();
     deleteIndex = null;
   }
