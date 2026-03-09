@@ -1360,51 +1360,185 @@ function sortMemories() {
   });
 }
 
-/* ── LOCAL STORAGE ── */
-var STORAGE_KEY = 'familyStory_memories';
-var FRAME_KEY   = 'familyStory_framePhoto';
+/* ── INDEXEDDB DATABASE ── */
+var DB_NAME = 'FamilyStoryDB';
+var DB_VERSION = 1;
+var STORE_MEMORIES = 'memories';
+var STORE_SETTINGS = 'settings';
+var db = null;
+
+// Initialize IndexedDB
+function initDatabase() {
+  return new Promise(function(resolve, reject) {
+    var request = indexedDB.open(DB_NAME, DB_VERSION);
+    
+    request.onerror = function() {
+      console.error('Database failed to open:', request.error);
+      reject(request.error);
+    };
+    
+    request.onsuccess = function() {
+      db = request.result;
+      console.log('Database opened successfully');
+      resolve(db);
+    };
+    
+    request.onupgradeneeded = function(e) {
+      var tempDb = e.target.result;
+      
+      // Create object stores if they don't exist
+      if (!tempDb.objectStoreNames.contains(STORE_MEMORIES)) {
+        var memoryStore = tempDb.createObjectStore(STORE_MEMORIES, { keyPath: 'id', autoIncrement: true });
+        memoryStore.createIndex('sortKey', 'sortKey', { unique: false });
+      }
+      
+      if (!tempDb.objectStoreNames.contains(STORE_SETTINGS)) {
+        tempDb.createObjectStore(STORE_SETTINGS, { keyPath: 'key' });
+      }
+    };
+  });
+}
 
 function saveMemories() {
-  try {
-    // Only save user-added/edited memories (non-auto, or auto ones that were edited)
-    // We save ALL memories so edits to built-in ones persist too
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(memories));
-  } catch(e) {
-    console.warn('Storage save failed (may be full):', e);
+  if (!db) {
+    console.warn('Database not ready');
+    return Promise.reject('Database not ready');
   }
+  
+  return new Promise(function(resolve, reject) {
+    try {
+      var transaction = db.transaction([STORE_MEMORIES], 'readwrite');
+      var store = transaction.objectStore(STORE_MEMORIES);
+      
+      // Clear existing memories first
+      store.clear();
+      
+      // Add all memories
+      memories.forEach(function(m) {
+        store.add(m);
+      });
+      
+      transaction.oncomplete = function() {
+        console.log('Memories saved to database');
+        resolve();
+      };
+      
+      transaction.onerror = function() {
+        console.error('Save failed:', transaction.error);
+        reject(transaction.error);
+      };
+    } catch(e) {
+      console.warn('Storage save failed:', e);
+      reject(e);
+    }
+  });
 }
 
 function loadMemories() {
-  try {
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return; // first visit — use hardcoded defaults
-    var saved = JSON.parse(raw);
-    if (!Array.isArray(saved) || saved.length === 0) return;
-    // Replace the memories array contents with saved data
-    memories.length = 0;
-    saved.forEach(function(m) { memories.push(m); });
-  } catch(e) {
-    console.warn('Storage load failed:', e);
+  if (!db) {
+    console.warn('Database not ready');
+    return Promise.reject('Database not ready');
   }
+  
+  return new Promise(function(resolve, reject) {
+    try {
+      var transaction = db.transaction([STORE_MEMORIES], 'readonly');
+      var store = transaction.objectStore(STORE_MEMORIES);
+      var request = store.getAll();
+      
+      request.onsuccess = function() {
+        var saved = request.result;
+        if (saved && saved.length > 0) {
+          memories.length = 0;
+          saved.forEach(function(m) { memories.push(m); });
+          console.log('Loaded ' + saved.length + ' memories from database');
+        }
+        resolve(saved);
+      };
+      
+      request.onerror = function() {
+        console.error('Load failed:', request.error);
+        reject(request.error);
+      };
+    } catch(e) {
+      console.warn('Storage load failed:', e);
+      reject(e);
+    }
+  });
 }
 
 function saveFramePhoto(src) {
-  try {
-    if (src) localStorage.setItem(FRAME_KEY, src);
-    else localStorage.removeItem(FRAME_KEY);
-  } catch(e) {
-    console.warn('Frame photo save failed (image may be too large):', e);
+  if (!db) {
+    console.warn('Database not ready');
+    return Promise.reject('Database not ready');
   }
+  
+  return new Promise(function(resolve, reject) {
+    try {
+      var transaction = db.transaction([STORE_SETTINGS], 'readwrite');
+      var store = transaction.objectStore(STORE_SETTINGS);
+      
+      if (src) {
+        store.put({ key: 'framePhoto', value: src });
+      } else {
+        store.delete('framePhoto');
+      }
+      
+      transaction.oncomplete = function() {
+        console.log('Frame photo saved');
+        resolve();
+      };
+      
+      transaction.onerror = function() {
+        reject(transaction.error);
+      };
+    } catch(e) {
+      console.warn('Frame photo save failed:', e);
+      reject(e);
+    }
+  });
 }
 
 function loadFramePhoto() {
-  try {
-    return localStorage.getItem(FRAME_KEY) || null;
-  } catch(e) { return null; }
+  if (!db) {
+    console.warn('Database not ready');
+    return Promise.resolve(null);
+  }
+  
+  return new Promise(function(resolve) {
+    try {
+      var transaction = db.transaction([STORE_SETTINGS], 'readonly');
+      var store = transaction.objectStore(STORE_SETTINGS);
+      var request = store.get('framePhoto');
+      
+      request.onsuccess = function() {
+        var result = request.result;
+        resolve(result ? result.value : null);
+      };
+      
+      request.onerror = function() {
+        resolve(null);
+      };
+    } catch(e) {
+      console.warn('Frame photo load failed:', e);
+      resolve(null);
+    }
+  });
 }
 
-// Load persisted memories on startup (overrides defaults if user has saved data)
-loadMemories();
+// Initialize database and load memories
+initDatabase().then(function() {
+  return loadMemories();
+}).then(function() {
+  sortMemories();
+  buildTimeline();
+  document.querySelectorAll('.family-card').forEach(function(el) { observer.observe(el); });
+}).catch(function(e) {
+  console.error('Initialization failed, using defaults:', e);
+  sortMemories();
+  buildTimeline();
+  document.querySelectorAll('.family-card').forEach(function(el) { observer.observe(el); });
+});
 
 /* ── BUILD TIMELINE ── */
 const tl = document.getElementById('timeline');
@@ -1502,10 +1636,6 @@ function buildTimeline() {
     observer.observe(item);
   });
 }
-
-sortMemories();
-buildTimeline();
-document.querySelectorAll('.family-card').forEach(function(el) { observer.observe(el); });
 
 /* ── MODAL LOGIC ── */
 var editIndex = null;
@@ -1645,27 +1775,37 @@ document.getElementById('modalSave').addEventListener('click', function() {
     memories.push({ date: date, title: title, desc: desc, doodle: 'photo', photo: pendingPhoto || null, sortKey: rawDate });
   }
   sortMemories();
-  saveMemories();
-  buildTimeline();
-  // Scroll to the newly added/edited memory after modal closes
-  var newIdx = editIndex !== null ? editIndex : memories.findIndex(function(m) { return m.sortKey === rawDate && m.title === title; });
-  closeModal();
-  setTimeout(function() {
-    var items = document.querySelectorAll('.tl-item');
-    if (items[newIdx]) {
-      items[newIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, 200);
+  saveMemories().then(function() {
+    buildTimeline();
+    // Scroll to the newly added/edited memory after modal closes
+    var newIdx = editIndex !== null ? editIndex : memories.findIndex(function(m) { return m.sortKey === rawDate && m.title === title; });
+    closeModal();
+    setTimeout(function() {
+      var items = document.querySelectorAll('.tl-item');
+      if (items[newIdx]) {
+        items[newIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 200);
+  }).catch(function(e) {
+    console.error('Failed to save memory:', e);
+    alert('Failed to save memory. Please try again.');
+  });
 });
 
 document.getElementById('confirmDelete').addEventListener('click', function() {
   if (deleteIndex !== null) {
     memories.splice(deleteIndex, 1);
-    saveMemories();
-    buildTimeline();
-    deleteIndex = null;
+    saveMemories().then(function() {
+      buildTimeline();
+      deleteIndex = null;
+      closeConfirm();
+    }).catch(function(e) {
+      console.error('Failed to delete memory:', e);
+      alert('Failed to delete memory. Please try again.');
+    });
+  } else {
+    closeConfirm();
   }
-  closeConfirm();
 });
 
 /* ── FALLING PETALS ── */
